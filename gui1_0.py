@@ -83,11 +83,12 @@ class ImageEditorApp(ctk.CTk):
             self.current_image = self.original_image.copy()
             self.display_image(self.current_image)
             self.export_button.configure(state="normal")
-            self.imagesSaves.append(self.original_image)
+            self.imagesSaves = []
 
     def reset_image(self):
         if self.original_image:
             self.current_image = self.original_image.copy()
+            self.imagesSaves = []
             self.display_image(self.current_image)
         
     def undo(self):
@@ -97,18 +98,27 @@ class ImageEditorApp(ctk.CTk):
 
     def display_image(self, img_data):
         self.update_idletasks()
-        w, h = self.main_frame.winfo_width()-40, self.main_frame.winfo_height()-40
-        if w <= 0 or h <= 0: w, h = 800, 600
+
+        w_frame, h_frame = self.main_frame.winfo_width()-40, self.main_frame.winfo_height()-40
+        if w_frame <= 0 or h_frame <= 0: w_frame, h_frame = 800, 600
 
         img_w, img_h = img_data.size
-        ratio = min(w/img_w, h/img_h)
-        resized = img_data.resize((int(img_w*ratio), int(img_h*ratio)), Image.Resampling.LANCZOS)
+        ratio = min(w_frame/img_w, h_frame/img_h)
+        new_w = int(img_w * ratio)
+        new_h = int(img_h * ratio)
         
-        self.photo_image = ImageTk.PhotoImage(resized)
+        self.photo_image = ctk.CTkImage(
+            light_image=img_data, 
+            dark_image=img_data, 
+            size=(new_w, new_h)  
+        )
+        
         self.image_label.configure(image=self.photo_image, text="")
 
     def apply_effect(self, mode):
         if not self.current_image: return
+
+        self.imagesSaves.append(self.current_image.copy())
         
         if self.current_image.mode != "RGB":
             self.current_image = self.current_image.convert("RGB")
@@ -137,7 +147,6 @@ class ImageEditorApp(ctk.CTk):
             sepia_img = ImageOps.colorize(sepia_img, "#704214", "#C0A080")
             self.current_image = sepia_img
 
-        self.imagesSaves.append(self.current_image)
         self.display_image(self.current_image)
 
     def export_image(self):
