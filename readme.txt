@@ -3,6 +3,9 @@ potrzebne moduły do instalacji:
 pip install customtkinter
 pip install Pillow
 
+KOD/PROGRAM:
+gui1_0.py
+
 
 
 Projekt GitHub, na którym można śledzić bieżący progres i stan aplikacji/projektu:
